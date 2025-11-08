@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة المتاجر - StorePro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         :root {
@@ -823,7 +820,7 @@
                 
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="البريد الإلكتروني" value="test@example.com">
+                    <input type="email" id="email" placeholder="البريد الإلكتروني" value="admin@store.com">
                 </div>
                 
                 <div class="input-group">
@@ -879,7 +876,7 @@
             <div class="sidebar-footer">
                 <div class="user-info">
                     <i class="fas fa-user-circle"></i>
-                    <span id="userEmail"></span>
+                    <span id="userEmail">admin@store.com</span>
                 </div>
                 <button class="btn-logout" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i>
@@ -932,7 +929,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>المنتجات</h3>
-                            <span id="totalProducts">0 منتج</span>
+                            <span id="totalProducts">2 منتج</span>
                         </div>
                     </div>
                 </div>
@@ -974,22 +971,7 @@
                             </div>
                         </div>
                         <div class="products-grid" id="posProductsList">
-                            <div class="product-card" onclick="addToCart({id: '1', name: 'منتج تجريبي 1', price: 25, quantity: 10})">
-                                <div class="product-image">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <h4>منتج تجريبي 1</h4>
-                                <div class="price">25 ريال</div>
-                                <small>المخزون: 10</small>
-                            </div>
-                            <div class="product-card" onclick="addToCart({id: '2', name: 'منتج تجريبي 2', price: 35, quantity: 5})">
-                                <div class="product-image">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <h4>منتج تجريبي 2</h4>
-                                <div class="price">35 ريال</div>
-                                <small>المخزون: 5</small>
-                            </div>
+                            <!-- سيتم ملؤها بالمنتجات -->
                         </div>
                     </div>
                     
@@ -1065,23 +1047,7 @@
                             </tr>
                         </thead>
                         <tbody id="inventoryTableBody">
-                            <tr>
-                                <td>123456789</td>
-                                <td><i class="fas fa-box" style="font-size: 1.5rem; color: #6c757d;"></i></td>
-                                <td>منتج تجريبي 1</td>
-                                <td>20 ريال</td>
-                                <td>25 ريال</td>
-                                <td>10</td>
-                                <td><span style="color: green;">متوفر</span></td>
-                                <td>
-                                    <button class="action-btn" style="padding: 5px 10px; margin: 2px;">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn-danger" style="padding: 5px 10px; margin: 2px;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- سيتم ملؤها بالمنتجات -->
                         </tbody>
                     </table>
                 </div>
@@ -1106,18 +1072,7 @@
                             </tr>
                         </thead>
                         <tbody id="salesTableBody">
-                            <tr>
-                                <td>INV001</td>
-                                <td>2024-01-08</td>
-                                <td>منتج تجريبي 1</td>
-                                <td>2</td>
-                                <td>50 ريال</td>
-                                <td>
-                                    <button class="action-btn" style="padding: 5px 10px;">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- سيتم ملؤها بالمبيعات -->
                         </tbody>
                     </table>
                 </div>
@@ -1136,7 +1091,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>إجمالي المبيعات</h3>
-                            <span>1,250 ريال</span>
+                            <span>0 ريال</span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -1145,7 +1100,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>عدد العملاء</h3>
-                            <span>45</span>
+                            <span>0</span>
                         </div>
                     </div>
                 </div>
@@ -1234,20 +1189,29 @@
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAYWo0djZQnxnjhouNmuI1cP_ZroRPJJ8c",
-            authDomain: "wacelsoft.firebaseapp.com",
-            projectId: "wacelsoft",
-            storageBucket: "wacelsoft.firebasestorage.app",
-            messagingSenderId: "1050154579007",
-            appId: "1:1050154579007:web:9735db78fb564093cef48a"
-        };
+        // بيانات التطبيق
+        let products = JSON.parse(localStorage.getItem('products')) || [
+            {
+                id: '1',
+                name: 'أحذية رياضية',
+                barcode: '123456789',
+                cost: 50,
+                price: 80,
+                quantity: 10,
+                minQuantity: 5
+            },
+            {
+                id: '2', 
+                name: 'قميص رجالي',
+                barcode: '987654321',
+                cost: 30,
+                price: 45,
+                quantity: 15,
+                minQuantity: 3
+            }
+        ];
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
+        let sales = JSON.parse(localStorage.getItem('sales')) || [];
         let cart = [];
         let currentUser = null;
 
@@ -1276,8 +1240,8 @@
                 document.getElementById('authSection').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 document.getElementById('userEmail').textContent = email;
-                alert('مرحباً بك في StorePro!');
-            }, 1500);
+                loadAppData();
+            }, 1000);
         }
         
         function signup() {
@@ -1294,7 +1258,7 @@
             setTimeout(() => {
                 hideLoading();
                 alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
-            }, 1500);
+            }, 1000);
         }
         
         function logout() {
@@ -1315,6 +1279,18 @@
             
             document.getElementById(tabName).classList.add('active');
             event.currentTarget.classList.add('active');
+
+            if (tabName === 'pos') loadPOSProducts();
+            if (tabName === 'inventory') loadInventoryTable();
+            if (tabName === 'sales') loadSalesTable();
+            if (tabName === 'dashboard') updateDashboard();
+        }
+
+        function loadAppData() {
+            loadPOSProducts();
+            loadInventoryTable();
+            loadSalesTable();
+            updateDashboard();
         }
 
         // إدارة السلة
@@ -1413,17 +1389,128 @@
                 return;
             }
             
+            // تحديث المخزون
+            cart.forEach(cartItem => {
+                const product = products.find(p => p.id === cartItem.id);
+                if (product) {
+                    product.quantity -= cartItem.quantity;
+                }
+            });
+            
+            // حفظ البيع
+            const sale = {
+                id: 'SALE_' + Date.now(),
+                items: [...cart],
+                total: parseFloat(document.getElementById('cartTotal').textContent),
+                tax: parseFloat(document.getElementById('cartTax').textContent),
+                grandTotal: parseFloat(document.getElementById('cartGrandTotal').textContent),
+                date: new Date().toLocaleDateString('ar-SA')
+            };
+            
+            sales.push(sale);
+            saveData();
+            
             alert('تم إتمام البيع بنجاح! المجموع: ' + document.getElementById('cartGrandTotal').textContent);
             clearCart();
+            loadAppData();
         }
 
         // إدارة المنتجات
+        function loadPOSProducts() {
+            const productsList = document.getElementById('posProductsList');
+            productsList.innerHTML = '';
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.onclick = () => addToCart(product);
+                
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h4>${product.name}</h4>
+                    <div class="price">${product.price} ريال</div>
+                    <small>المخزون: ${product.quantity}</small>
+                `;
+                
+                productsList.appendChild(productCard);
+            });
+        }
+
+        function loadInventoryTable() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            
+            products.forEach(product => {
+                const status = product.quantity <= product.minQuantity ? 
+                    '<span style="color: red;">منخفض</span>' : 
+                    '<span style="color: green;">متوفر</span>';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.barcode}</td>
+                    <td><i class="fas fa-box" style="font-size: 1.5rem; color: #6c757d;"></i></td>
+                    <td>${product.name}</td>
+                    <td>${product.cost} ريال</td>
+                    <td>${product.price} ريال</td>
+                    <td>${product.quantity}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button class="action-btn" style="padding: 5px 10px; margin: 2px;" onclick="editProduct('${product.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-danger" style="padding: 5px 10px; margin: 2px;" onclick="deleteProduct('${product.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function loadSalesTable() {
+            const tableBody = document.getElementById('salesTableBody');
+            tableBody.innerHTML = '';
+            
+            sales.forEach(sale => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${sale.id}</td>
+                    <td>${sale.date}</td>
+                    <td>${sale.items.map(item => `${item.name} (${item.quantity})`).join(', ')}</td>
+                    <td>${sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                    <td>${sale.grandTotal.toFixed(2)} ريال</td>
+                    <td>
+                        <button class="action-btn" style="padding: 5px 10px;" onclick="viewSale('${sale.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
         function showAddProductModal() {
             document.getElementById('addProductModal').style.display = 'flex';
         }
 
         function closeAddProductModal() {
             document.getElementById('addProductModal').style.display = 'none';
+            resetProductForm();
+        }
+
+        function resetProductForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productBarcode').value = '';
+            document.getElementById('productCost').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productQuantity').value = '';
+            document.getElementById('productMinQuantity').value = '5';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productImagePreview').style.display = 'none';
+            document.getElementById('barcodePreview').style.display = 'none';
+            document.querySelector('.upload-placeholder').style.display = 'block';
         }
 
         function generateBarcode() {
@@ -1445,25 +1532,76 @@
         }
 
         function addProduct() {
-            const productName = document.getElementById('productName').value;
-            if (!productName) {
+            const productData = {
+                id: 'PROD_' + Date.now(),
+                name: document.getElementById('productName').value,
+                barcode: document.getElementById('productBarcode').value,
+                cost: parseFloat(document.getElementById('productCost').value) || 0,
+                price: parseFloat(document.getElementById('productPrice').value) || 0,
+                quantity: parseInt(document.getElementById('productQuantity').value) || 0,
+                minQuantity: parseInt(document.getElementById('productMinQuantity').value) || 5,
+                description: document.getElementById('productDescription').value
+            };
+            
+            if (!productData.name) {
                 alert('يرجى إدخال اسم المنتج');
                 return;
             }
             
-            alert('تم إضافة المنتج: ' + productName);
+            products.push(productData);
+            saveData();
+            alert('تم إضافة المنتج بنجاح');
             closeAddProductModal();
+            loadAppData();
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                products = products.filter(p => p.id !== productId);
+                saveData();
+                loadAppData();
+            }
         }
 
         function generateBarcodes() {
+            if (products.length === 0) {
+                alert('لا توجد منتجات لطباعة الباركود');
+                return;
+            }
             alert('جاري تحضير الباركود للطباعة...');
         }
 
         function openBarcodeScanner() {
-            alert('قارئ الباركود جاهز للاستخدام (في النسخة الكاملة)');
+            alert('قارئ الباركود جاهز للاستخدام');
         }
 
-        // إخفاء التحميل عند بدء الصفحة
+        function viewSale(saleId) {
+            const sale = sales.find(s => s.id === saleId);
+            if (sale) {
+                alert(`تفاصيل الفاتورة ${sale.id}:\n\nالمنتجات: ${sale.items.map(item => `${item.name} - ${item.quantity} × ${item.price}`).join('\n')}\n\nالمجموع: ${sale.total} ريال\nالضريبة: ${sale.tax} ريال\nالإجمالي: ${sale.grandTotal} ريال`);
+            }
+        }
+
+        function updateDashboard() {
+            document.getElementById('totalProducts').textContent = products.length + ' منتج';
+            
+            const todaySales = sales.filter(sale => {
+                const saleDate = new Date(sale.date);
+                const today = new Date();
+                return saleDate.toDateString() === today.toDateString();
+            });
+            
+            const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.grandTotal, 0);
+            document.getElementById('todayRevenue').textContent = todayRevenue.toFixed(2) + ' ريال';
+            document.getElementById('netProfit').textContent = (todayRevenue * 0.7).toFixed(2) + ' ريال';
+        }
+
+        function saveData() {
+            localStorage.setItem('products', JSON.stringify(products));
+            localStorage.setItem('sales', JSON.stringify(sales));
+        }
+
+        // إعدادات الصفحة
         document.addEventListener('DOMContentLoaded', function() {
             hideLoading();
             
@@ -1496,6 +1634,9 @@
                     reader.readAsDataURL(file);
                 }
             });
+
+            // تحميل البيانات الأولية
+            loadAppData();
         });
     </script>
 </body>
