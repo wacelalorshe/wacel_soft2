@@ -1,11 +1,11 @@
-// Firebase configuration
+// Firebase configuration - تم التحديث بمعلومات مشروعك
 const firebaseConfig = {
-    apiKey: "your-api-key",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "your-app-id"
+    apiKey: "AIzaSyAYWo0djZQnxnjhouNmuI1cP_ZroRPJJ8c",
+    authDomain: "wacelsoft.firebaseapp.com",
+    projectId: "wacelsoft",
+    storageBucket: "wacelsoft.firebasestorage.app",
+    messagingSenderId: "1050154579007",
+    appId: "1:1050154579007:web:9735db78fb564093cef48a"
 };
 
 // Initialize Firebase
