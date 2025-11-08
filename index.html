@@ -3,196 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام محاسبة المتاجر - متكامل</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>نظام محاسبة المتاجر</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <!-- شريط التنقل -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-store"></i>
-                <span>نظام المحاسبة</span>
+    <div class="container">
+        <header>
+            <h1>نظام محاسبة المتاجر</h1>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span id="userEmail"></span>
+                <button onclick="logout()">تسجيل الخروج</button>
             </div>
-            <div class="nav-menu">
-                <a href="#" class="nav-link active" data-tab="dashboard">
-                    <i class="fas fa-home"></i> الرئيسية
-                </a>
-                <a href="#" class="nav-link" data-tab="products">
-                    <i class="fas fa-box"></i> المنتجات
-                </a>
-                <a href="#" class="nav-link" data-tab="sales">
-                    <i class="fas fa-shopping-cart"></i> المبيعات
-                </a>
-                <a href="#" class="nav-link" data-tab="purchases">
-                    <i class="fas fa-truck"></i> المشتريات
-                </a>
-                <a href="#" class="nav-link" data-tab="reports">
-                    <i class="fas fa-chart-bar"></i> التقارير
-                </a>
-            </div>
-        </div>
-    </nav>
+        </header>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="main-content">
-        <!-- لوحة التحكم -->
-        <div id="dashboard" class="tab-content active">
-            <div class="dashboard-header">
-                <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
-                <p>نظرة عامة على أداء متجرك</p>
-            </div>
-            
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="total-sales">0 ريال</h3>
-                        <p>إجمالي المبيعات</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-boxes"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="total-products">0</h3>
-                        <p>المنتجات</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="today-sales">0</h3>
-                        <p>مبيعات اليوم</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="low-stock">0</h3>
-                        <p>منتجات منخفضة المخزون</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="recent-activities">
-                <h2>النشاطات الحديثة</h2>
-                <div id="activities-list" class="activities-list">
-                    <!-- سيتم ملؤها بالبيانات -->
-                </div>
+        <!-- شاشة التسجيل -->
+        <div id="authSection" class="auth-section">
+            <div class="auth-form">
+                <h2>تسجيل الدخول</h2>
+                <input type="email" id="email" placeholder="البريد الإلكتروني">
+                <input type="password" id="password" placeholder="كلمة المرور">
+                <button onclick="login()">تسجيل الدخول</button>
+                <button onclick="signup()">إنشاء حساب جديد</button>
             </div>
         </div>
 
-        <!-- إدارة المنتجات -->
-        <div id="products" class="tab-content">
-            <div class="section-header">
-                <h1><i class="fas fa-box"></i> إدارة المنتجات</h1>
-                <button class="btn btn-primary" onclick="showProductForm()">
-                    <i class="fas fa-plus"></i> إضافة منتج
-                </button>
-            </div>
+        <!-- الشاشة الرئيسية -->
+        <div id="mainApp" class="main-app" style="display: none;">
+            <nav class="tabs">
+                <button class="tab-link active" onclick="openTab('dashboard')">لوحة التحكم</button>
+                <button class="tab-link" onclick="openTab('sales')">المبيعات</button>
+                <button class="tab-link" onclick="openTab('expenses')">المصروفات</button>
+                <button class="tab-link" onclick="openTab('inventory')">المخزون</button>
+                <button class="tab-link" onclick="openTab('reports')">التقارير</button>
+            </nav>
 
-            <div class="products-grid" id="products-grid">
-                <!-- سيتم ملؤها بالمنتجات -->
-            </div>
-        </div>
-
-        <!-- إدارة المبيعات -->
-        <div id="sales" class="tab-content">
-            <div class="section-header">
-                <h1><i class="fas fa-shopping-cart"></i> إدارة المبيعات</h1>
-                <button class="btn btn-primary" onclick="startNewSale()">
-                    <i class="fas fa-plus"></i> عملية بيع جديدة
-                </button>
-            </div>
-
-            <div class="sale-container" id="sale-container">
-                <!-- واجهة البيع -->
-            </div>
-
-            <div class="sales-list" id="sales-list">
-                <!-- قائمة المبيعات -->
-            </div>
-        </div>
-
-        <!-- التقارير -->
-        <div id="reports" class="tab-content">
-            <div class="section-header">
-                <h1><i class="fas fa-chart-bar"></i> التقارير المالية</h1>
-            </div>
-
-            <div class="reports-container">
-                <div class="report-card">
-                    <h3>تقرير المبيعات</h3>
-                    <canvas id="salesChart"></canvas>
-                </div>
-                
-                <div class="report-card">
-                    <h3>أفضل المنتجات مبيعاً</h3>
-                    <div id="topProducts"></div>
+            <!-- لوحة التحكم -->
+            <div id="dashboard" class="tab-content active">
+                <h2>لوحة التحكم</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>الإيرادات اليوم</h3>
+                        <span id="todayRevenue">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>المصروفات اليوم</h3>
+                        <span id="todayExpenses">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>صافي الربح</h3>
+                        <span id="netProfit">0</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- نموذج إضافة منتج -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>إضافة منتج جديد</h2>
-                <span class="close" onclick="closeProductForm()">&times;</span>
+            <!-- إدارة المبيعات -->
+            <div id="sales" class="tab-content">
+                <h2>إدارة المبيعات</h2>
+                <div class="form-section">
+                    <h3>تسجيل بيع جديد</h3>
+                    <input type="text" id="productName" placeholder="اسم المنتج">
+                    <input type="number" id="saleAmount" placeholder="المبلغ">
+                    <input type="number" id="saleQuantity" placeholder="الكمية" value="1">
+                    <button onclick="addSale()">إضافة البيع</button>
+                </div>
+                <div class="list-section">
+                    <h3>سجل المبيعات</h3>
+                    <div id="salesList"></div>
+                </div>
             </div>
-            <form id="productForm" onsubmit="saveProduct(event)">
-                <div class="form-group">
-                    <label for="productName">اسم المنتج</label>
-                    <input type="text" id="productName" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productPrice">سعر البيع</label>
-                    <input type="number" id="productPrice" step="0.01" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productCost">سعر التكلفة</label>
-                    <input type="number" id="productCost" step="0.01" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productStock">الكمية في المخزون</label>
-                    <input type="number" id="productStock" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="productCategory">الفئة</label>
-                    <select id="productCategory">
-                        <option value="إلكترونيات">إلكترونيات</option>
-                        <option value="ملابس">ملابس</option>
-                        <option value="أغذية">أغذية</option>
-                        <option value="أدوات منزلية">أدوات منزلية</option>
-                        <option value="أخرى">أخرى</option>
+
+            <!-- إدارة المصروفات -->
+            <div id="expenses" class="tab-content">
+                <h2>إدارة المصروفات</h2>
+                <div class="form-section">
+                    <h3>تسجيل مصروف جديد</h3>
+                    <input type="text" id="expenseDescription" placeholder="وصف المصروف">
+                    <input type="number" id="expenseAmount" placeholder="المبلغ">
+                    <select id="expenseCategory">
+                        <option value="operational">تشغيلي</option>
+                        <option value="inventory">بضاعة</option>
+                        <option value="utilities">مرافق</option>
+                        <option value="other">أخرى</option>
                     </select>
+                    <button onclick="addExpense()">إضافة المصروف</button>
                 </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeProductForm()">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ المنتج</button>
+                <div class="list-section">
+                    <h3>سجل المصروفات</h3>
+                    <div id="expensesList"></div>
                 </div>
-            </form>
+            </div>
+
+            <!-- إدارة المخزون -->
+            <div id="inventory" class="tab-content">
+                <h2>إدارة المخزون</h2>
+                <div class="form-section">
+                    <h3>إضافة منتج جديد</h3>
+                    <input type="text" id="inventoryName" placeholder="اسم المنتج">
+                    <input type="number" id="inventoryPrice" placeholder="سعر الشراء">
+                    <input type="number" id="inventorySalePrice" placeholder="سعر البيع">
+                    <input type="number" id="inventoryQuantity" placeholder="الكمية">
+                    <input type="number" id="inventoryMinQuantity" placeholder="الحد الأدنى" value="5">
+                    <button onclick="addInventoryItem()">إضافة المنتج</button>
+                </div>
+                <div class="list-section">
+                    <h3>قائمة المنتجات</h3>
+                    <div id="inventoryList"></div>
+                </div>
+            </div>
+
+            <!-- التقارير -->
+            <div id="reports" class="tab-content">
+                <h2>التقارير</h2>
+                <div class="reports-section">
+                    <div class="report-card">
+                        <h3>تقرير الأرباح والخسائر</h3>
+                        <div id="profitLossReport"></div>
+                    </div>
+                    <div class="report-card">
+                        <h3>أعلى المنتجات مبيعاً</h3>
+                        <div id="topProductsReport"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
