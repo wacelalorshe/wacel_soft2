@@ -1,50 +1,523 @@
-# نظام إدارة المتاجر - StorePro
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المتاجر - StorePro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS الأساسي */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --dark: #1e1e2d;
+            --light: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        /* شاشة التحميل */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* شاشة التسجيل */
+        .auth-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .logo h1 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .auth-form h2 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .auth-form p {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .input-group i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px 45px 15px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* التطبيق الرئيسي */
+        .main-app {
+            display: none;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        
+        .sidebar-header .logo i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .sidebar-header .logo span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #6c757d;
+            text-decoration: none;
+        }
+        
+        .menu-item:hover {
+            background: #f8f9fa;
+            color: var(--primary);
+        }
+        
+        .menu-item.active {
+            background: var(--primary);
+            color: white;
+            border-right: 4px solid var(--secondary);
+        }
+        
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+        }
+        
+        .main-content {
+            margin-right: 280px;
+            padding: 30px;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-header h1 {
+            color: var(--dark);
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .income .stat-icon { background: var(--success); }
+        .expenses .stat-icon { background: var(--danger); }
+        .profit .stat-icon { background: var(--primary); }
+        .inventory .stat-icon { background: #f8961e; }
+    </style>
+</head>
+<body>
+    <!-- شاشة التحميل -->
+    <div id="loading" class="loading">
+        <div class="loader"></div>
+        <p>جاري التحميل...</p>
+    </div>
 
-نظام متكامل لإدارة المحلات التجارية مع دعم الباركود ونقطة البيع.
+    <!-- شاشة التسجيل -->
+    <div id="authSection" class="auth-section">
+        <div class="auth-card">
+            <div class="logo">
+                <i class="fas fa-store"></i>
+                <h1>StorePro</h1>
+            </div>
+            <div class="auth-form">
+                <h2>مرحباً بعودتك</h2>
+                <p>سجل الدخول لإدارة متجرك</p>
+                
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="البريد الإلكتروني" value="test@example.com">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="كلمة المرور" value="123456">
+                </div>
+                
+                <button class="btn-primary" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i>
+                    تسجيل الدخول
+                </button>
+                
+                <button class="btn-secondary" onclick="signup()">
+                    <i class="fas fa-user-plus"></i>
+                    إنشاء حساب جديد
+                </button>
+            </div>
+        </div>
+    </div>
 
-## ✨ المميزات
+    <!-- التطبيق الرئيسي -->
+    <div id="mainApp" class="main-app">
+        <!-- الشريط الجانبي -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>StorePro</span>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" onclick="openTab('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>لوحة التحكم</span>
+                </li>
+                <li class="menu-item" onclick="openTab('pos')">
+                    <i class="fas fa-cash-register"></i>
+                    <span>نقطة البيع</span>
+                </li>
+                <li class="menu-item" onclick="openTab('inventory')">
+                    <i class="fas fa-boxes"></i>
+                    <span>المخزون</span>
+                </li>
+            </ul>
+        </nav>
 
-- 🏪 **نقطة بيع متكاملة** مع فاتورة مبيعات
-- 📊 **لوحة تحكم** مع إحصائيات حية
-- 🏷️ **إدارة المخزون** مع تنبيهات المنتجات المنتهية
-- 📱 **قارئ الباركود** للمسح الضوئي
-- 🖨️ **طباعة الباركود** للمنتجات
-- 💰 **إدارة المبيعات** والمصروفات
-- 📈 **تقارير متقدمة** وتحليلات
-- 👥 **دعم多يستخدم** مع فصل البيانات
+        <!-- المحتوى الرئيسي -->
+        <main class="main-content">
+            <!-- لوحة التحكم -->
+            <div id="dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h1><i class="fas fa-chart-line"></i> لوحة التحكم</h1>
+                    <p>نظرة عامة على أداء متجرك</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card income">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>الإيرادات اليوم</h3>
+                            <span id="todayRevenue">0 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card profit">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>صافي الربح</h3>
+                            <span id="netProfit">0 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card inventory">
+                        <div class="stat-icon">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>المنتجات</h3>
+                            <span id="totalProducts">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 15px; text-align: center;">
+                    <h3>🚀 التطبيق يعمل بنجاح!</h3>
+                    <p>يمكنك الآن إضافة المزيد من الميزات</p>
+                </div>
+            </div>
 
-## 🚀 طريقة التشغيل
+            <!-- نقطة البيع -->
+            <div id="pos" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-cash-register"></i> نقطة البيع</h1>
+                    <p>إدارة المبيعات السريعة</p>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                    <h3>🛒 نقطة البيع</h3>
+                    <p>هذه الشاشة جاهزة لإضافة ميزات البيع</p>
+                    <button class="btn-primary" style="width: auto; margin: 20px auto;">
+                        <i class="fas fa-plus"></i>
+                        إضافة منتج للبيع
+                    </button>
+                </div>
+            </div>
 
-1. **تأكد من تفعيل** Authentication و Firestore في Firebase Console
-2. **افتح** `index.html` في متصفحك
-3. **أنشئ حساب** جديد أو سجل الدخول
-4. **ابدأ** بإضافة المنتجات والمبيعات
+            <!-- المخزون -->
+            <div id="inventory" class="tab-content">
+                <div class="page-header">
+                    <h1><i class="fas fa-boxes"></i> إدارة المخزون</h1>
+                    <p>إدارة منتجات المتجر</p>
+                </div>
+                
+                <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                    <h3>📦 إدارة المخزون</h3>
+                    <p>هذه الشاشة جاهزة لإدارة المنتجات</p>
+                    <button class="btn-primary" style="width: auto; margin: 20px auto;">
+                        <i class="fas fa-plus"></i>
+                        إضافة منتج جديد
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
 
-## 📱 الاستخدام
-
-### نقطة البيع (POS)
-- أضف المنتجات إلى سلة التسوق
-- استخدم قارئ الباركود للمسح السريع
-- أتمم عملية البيع بضغطة زر
-
-### إدارة المخزون
-- أضف منتجات جديدة مع صور وباركود
-- تتبع كميات المخزون
-- احصل على تنبيهات عند انخفاض المخزون
-
-### التقارير
-- شاهد إحصائيات المبيعات اليومية
-- تتبع المصروفات والأرباح
-- حلل أداء المنتجات
-
-## 🛠️ التقنيات المستخدمة
-
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Backend**: Firebase Firestore
-- **Authentication**: Firebase Auth
-- **Barcode**: QuaggaJS, JsBarcode
-- **Icons**: Font Awesome
-
-## 📞 الدعم
-
-في حالة وجود أي استفسارات، لا تتردد في التواصل.
+    <script>
+        // الدوال الأساسية
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            showLoading();
+            
+            // محاكاة تسجيل الدخول
+            setTimeout(function() {
+                hideLoading();
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                alert('مرحباً بك في StorePro!');
+            }, 1500);
+        }
+        
+        function signup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+            
+            showLoading();
+            
+            // محاكاة إنشاء حساب
+            setTimeout(function() {
+                hideLoading();
+                alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
+            }, 1500);
+        }
+        
+        function openTab(tabName) {
+            // إخفاء جميع المحتويات
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // إزالة النشاط من جميع القوائم
+            const menuItems = document.getElementsByClassName('menu-item');
+            for (let i = 0; i < menuItems.length; i++) {
+                menuItems[i].classList.remove('active');
+            }
+            
+            // إظهار المحتوى المحدد
+            document.getElementById(tabName).classList.add('active');
+            
+            // إضافة النشاط للقائمة المحددة
+            event.currentTarget.classList.add('active');
+        }
+        
+        // إخفاء التحميل عند بدء الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('التطبيق جاهز!');
+            hideLoading();
+        });
+    </script>
+</body>
+</html>
